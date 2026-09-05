@@ -17,7 +17,7 @@ These results establish AHTO as a general organizing principle whose expression 
 ## Links
 
 - **Paper:** *(add link)*
-- **Data (Dryad):** *(add link)*
+- **Data (Figshare):** *(add link)*
 
 ## Code
 
@@ -29,9 +29,9 @@ Environmental heterogeneity (EH) metrics and the environmental covariates were d
 
 > **Note:** Opening the link above requires a Google Earth Engine account. Clicking it adds the read-only repository to your Code Editor under the *Reader* section.
 
-### Analysis (R / Python)
+### Analysis (R)
 
-*(Add a short description of the statistical analysis scripts and where they live in this repository.)*
+/Code
 
 ## Data Sources
 
