@@ -15,7 +15,7 @@ library(rFIA)         # getFIA(), readFIA(), tpa(), clipFIA()
 library(sf)           # vector I/O, buffers, neighbour search
 library(data.table)   # build_comm_abundance() relies on it
 library(tidyverse)    # dplyr, purrr, tidyr, ggplot2, readr, stringr
-
+library(iNEXT)
 # ---- Options & folders ------------------------------------------------------
 options(timeout = 3600)   # long download timeout for the FIA pull
 
@@ -350,6 +350,163 @@ FIA_tables_by_scale <- list(
 )
 
 iwalk(FIA_tables_by_scale, function(tbl, scale) {
-  write.csv(tbl, file.path("data_clean", paste0("FIA_table_", scale, ".csv")),
+  saveRDS(tbl, file.path("data_clean", paste0("FIA_table_", scale, ".rds")),
             row.names = FALSE)
 })
+
+estimate_FIA_richness <- function(
+    scale,
+    fia_sp,
+    gamma_file = NULL,
+    table_file = NULL,
+    output_file = NULL,
+    n_target = 10,
+    coverage = 0.90
+) {
+  
+  scale <- as.character(scale)
+  
+  #-----------------------------
+  # Special case: 1 km
+  #-----------------------------
+  if (scale == "1km") {
+    
+    FIA_table <- readRDS(table_file)
+    
+    result <- FIA_table %>%
+      filter(.data[[paste0("effort_", scale)]] == 1) %>%
+      mutate(
+        qD = .data[[paste0("richness_", scale)]]
+      ) %>%
+      rename(focal_pltID = pltID) %>%
+      relocate(qD, .before = all_of(paste0("richness_", scale)))
+    
+    if (!is.null(output_file)) {
+      write.csv(result, output_file, row.names = FALSE)
+    }
+    
+    return(result)
+  }
+  
+  
+  #-----------------------------
+  # Other scales: iNEXT
+  #-----------------------------
+  gamma <- readRDS(gamma_file) %>%
+    filter(SCIENTIFIC_NAME %in% fia_sp$SCIENTIFIC_NAME) %>%
+    as.data.table()
+  
+  all_species <- sort(unique(gamma$SCIENTIFIC_NAME))
+  
+  incidence_list <- lapply(
+    split(gamma, gamma$focal_pltID),
+    function(d) {
+      
+      freq <- setNames(
+        d$n_plots_species,
+        d$SCIENTIFIC_NAME
+      )
+      
+      freq <- freq[all_species]
+      freq[is.na(freq)] <- 0
+      
+      c(
+        nT = d$effort[1],
+        freq
+      )
+    }
+  )
+  
+  # keep enough buffers to estimate richness at 90% coverage
+  valid_buffers <- incidence_list[
+    sapply(incidence_list, function(x) x[["nT"]] >= n_target)
+  ]
+  
+  richness_results <- purrr::imap_dfr(
+    valid_buffers,
+    function(one_buffer, focal_pltID) {
+      
+      tryCatch({
+        
+        out2 <- iNEXT::estimateD(
+          one_buffer,
+          q = 0,
+          datatype = "incidence_freq",
+          base = "coverage",
+          level = coverage
+        )
+        
+        out2 %>%
+          mutate(
+            focal_pltID = focal_pltID,
+            n_plots = one_buffer[["nT"]]
+          )
+        
+      }, error = function(e) {
+        
+        message("Skipped buffer: ", focal_pltID)
+        message("Reason: ", e$message)
+        
+        NULL
+      })
+    }
+  )
+  
+  
+  #-----------------------------
+  # Join with FIA table
+  #-----------------------------
+  FIA_table <- readRDS(table_file)
+  
+  result <- richness_results %>%
+    select(focal_pltID, n_plots, qD) %>%
+    left_join(
+      FIA_table,
+      by = join_by(focal_pltID == pltID)
+    )
+  
+  if (!is.null(output_file)) {
+    write.csv(result, output_file, row.names = FALSE)
+  }
+  
+  return(result)
+}
+fia_sp <- read.csv("data_clean/fia_sp.csv")
+FIA_table_1km <- estimate_FIA_richness(
+  scale = "1km",
+  fia_sp = fia_sp,
+  table_file = "data/FIA_table_1km.rds",
+  output_file = "D:/BiodiversityEmbedding/data/FIA_table_1km_iNEXT.csv"
+)
+FIA_table_5km <- estimate_FIA_richness(
+  scale = "5km",
+  fia_sp = fia_sp,
+  gamma_file = "output/FIA_gamma_abundance/comm_abundance_r5km.rds",
+  table_file = "data/FIA_table_5km.rds",
+  n_target = 6,
+  output_file = "D:/BiodiversityEmbedding/data/FIA_table_5km_iNEXT.csv"
+)
+FIA_table_10km <- estimate_FIA_richness(
+  scale = "10km",
+  fia_sp = fia_sp,
+  gamma_file = "output/FIA_gamma_abundance/comm_abundance_r10km.rds",
+  table_file = "data/FIA_table_10km.rds",
+  n_target = 10,
+  output_file = "D:/BiodiversityEmbedding/data/FIA_table_10km_iNEXT.csv"
+)
+FIA_table_20km <- estimate_FIA_richness(
+  scale = "20km",
+  fia_sp = fia_sp,
+  gamma_file = "output/FIA_gamma_abundance/comm_abundance_r20km.rds",
+  table_file = "data/FIA_table_20km.rds",
+  n_target = 10,
+  output_file = "D:/BiodiversityEmbedding/data/FIA_table_20km_iNEXT.csv"
+)
+FIA_table_50km <- estimate_FIA_richness(
+  scale = "50km",
+  fia_sp = fia_sp,
+  gamma_file = "output/FIA_gamma_abundance/comm_abundance_r50km.rds",
+  table_file = "data/FIA_table_50km.rds",
+  n_target = 10,
+  output_file = "D:/BiodiversityEmbedding/data/FIA_table_50km_iNEXT.csv"
+)

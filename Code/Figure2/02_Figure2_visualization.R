@@ -26,14 +26,14 @@ suppressPackageStartupMessages({
 
 ## 2. Paths ------------------------------------------------------------------
 DATA_ROOT  <- "D:/BiodiversityEmbedding/data"
-OUT_DIR    <- "D:/BiodiversityEmbedding/figures"
+OUT_DIR    <- "D:/BiodiversityEmbedding/claudeCode"
 CACHE_DIR  <- file.path(OUT_DIR, "cache")
 dir.create(OUT_DIR,   showWarnings = FALSE, recursive = TRUE)
 dir.create(CACHE_DIR, showWarnings = FALSE, recursive = TRUE)
 
 PATHS <- list(
-  tree   = list(plots = "plot_pts.shp",               table = "FIA_table.csv",
-                sar_R = "sar_tree_richness.rds",      sar_M = "sar_tree_MSA.rds"),
+  tree   = list(plots = "plot_pts.shp",               table = "FIA_table_10km_iNEXT.csv",
+                sar_R = "sar_tree_richness_iNEXT.rds",      sar_M = "sar_tree_MSA_iNEXT.rds"),
   bird   = list(plots = "bbsrtsl020_filterd.shp",     table = "BBS_table.csv",
                 sar_R = "sar_bird_richness.rds",      sar_M = "sar_bird_MSA.rds"),
   mammal = list(plots = "camera_array_centroids.shp", table = "mammal_table.csv",
@@ -41,10 +41,11 @@ PATHS <- list(
 )
 PATHS <- lapply(PATHS, function(p) lapply(p, function(f) file.path(DATA_ROOT, f)))
 
-# Per-scale RDS tables. Loaded into .GlobalEnv as <prefix>_table_<scale>
-# so helpers can resolve get(glue("..._{scale}")).
+# Per-scale tables. Loaded into .GlobalEnv as <prefix>_table_<scale>
+# so helpers can resolve get(glue("..._{scale}")). Tree tables use the iNEXT
+# CSVs; bird/mammal stay as RDS. load_scale_tables() dispatches on extension.
 SCALE_TABLE_PATHS <- list(
-  tree   = setNames(file.path(DATA_ROOT, paste0("FIA_table_",    c("1km","5km","10km","20km","50km"), ".rds")),
+  tree   = setNames(file.path(DATA_ROOT, paste0("FIA_table_",    c("1km","5km","10km","20km","50km"), "_iNEXT.csv")),
                     c("1km","5km","10km","20km","50km")),
   bird   = setNames(file.path(DATA_ROOT, paste0("BBS_table_",    c("400m","1km","5km","10km","20km"), ".rds")),
                     c("400m","1km","5km","10km","20km")),
@@ -224,6 +225,9 @@ make_map_panel <- function(data_sf, value_col, color_cfg, scaffold,
                            rasterise_dpi = LAYOUT_CONFIG$rasterise_dpi) {
   th <- THEME_CONFIG; lc <- LAYOUT_CONFIG
   if (isTRUE(color_cfg$log_transform)) data_sf[[value_col]] <- log(data_sf[[value_col]])
+  # Drop plots with no value (NA, or non-finite after log) so they are not
+  # rendered as grey points; only plots with a real value are drawn.
+  data_sf <- data_sf[is.finite(data_sf[[value_col]]), ]
   clim <- quantile(data_sf[[value_col]], color_cfg$limits_probs, na.rm = TRUE)
   
   color_scale <- scale_color_gradientn(
@@ -326,7 +330,11 @@ sar_partial_plot <- function(model, var, scale, taxa,
                                      ~ mean(.x, na.rm = TRUE)), .groups = "drop")
     R2 <- cor(model$Y, model$fit$fitted.values)^2
   } else {
-    data <- get(glue("FIA_table_{scale}")) %>% tidyr::drop_na()
+    # Use the fitted lm's own model frame so the predictor rows align with
+    # residuals(model). The iNEXT richness model is fit on log(qD), which
+    # drops rows where qD is NA, so a re-loaded FIA_table_{scale} %>% drop_na()
+    # no longer reproduces the model's row count (129065 vs 67276).
+    data <- model.frame(model)
     R2   <- unname(performance::r2(model)[[2]])
   }
   sar_coef_table <- get_coef_table(model)
@@ -477,7 +485,8 @@ build_scaling_plot <- function(sar_R, sar_M, taxa, scales_info) {
           legend.text          = element_text(size = th$scaling_legend_text_size))
 }
 
-# 4i. Load per-scale RDS tables into .GlobalEnv so get(glue(...)) resolves.
+# 4i. Load per-scale tables into .GlobalEnv so get(glue(...)) resolves.
+#     Reads .csv via read.csv and .rds via readRDS, so mixed formats coexist.
 load_scale_tables <- function(paths_by_taxa,
                               prefix_map = c(tree = "FIA", bird = "BBS", mammal = "mammal"),
                               envir = .GlobalEnv, verbose = TRUE) {
@@ -485,8 +494,9 @@ load_scale_tables <- function(paths_by_taxa,
     prefix <- prefix_map[[taxa]]
     for (scale in names(paths_by_taxa[[taxa]])) {
       fp <- paths_by_taxa[[taxa]][[scale]]
-      if (!file.exists(fp)) stop(sprintf("Missing RDS for %s @ %s: %s", taxa, scale, fp))
-      assign(paste0(prefix, "_table_", scale), readRDS(fp), envir = envir)
+      if (!file.exists(fp)) stop(sprintf("Missing table for %s @ %s: %s", taxa, scale, fp))
+      tbl <- if (grepl("\\.csv$", fp, ignore.case = TRUE)) read.csv(fp) else readRDS(fp)
+      assign(paste0(prefix, "_table_", scale), tbl, envir = envir)
       if (verbose) cat(sprintf("  loaded %s_table_%s\n", prefix, scale))
     }
   }
@@ -518,8 +528,9 @@ tree_sf <- sf_cache(
   source_files = c(PATHS$tree$plots, PATHS$tree$table),
   build_fn     = function() {
     sf::st_read(PATHS$tree$plots, quiet = TRUE) %>%
-      dplyr::left_join(read.csv(PATHS$tree$table), by = "pltID") %>%
-      dplyr::select(pltID, dplyr::contains("richness"), dplyr::contains("abundance"),
+      dplyr::left_join(read.csv(PATHS$tree$table), by = join_by(pltID==focal_pltID)) %>%
+      filter(!is.na(qD)) %>% 
+      dplyr::select(pltID, dplyr::contains("qD"), dplyr::contains("abundance"),
                     dplyr::contains("MSA"), dplyr::contains("effort")) %>%
       sf::st_crop(sf::st_bbox(LAYOUT_CONFIG$conus_bbox, crs = sf::st_crs(.))) %>%
       sf::st_transform(LAYOUT_CONFIG$albers_crs)
@@ -590,7 +601,7 @@ Y_M    <- "Residual log (MSA)"
 .NO_X_TITLE <- theme(axis.title.x = element_blank())
 
 cat("\n[5] Tree panels...\n")
-p_tree_R <- make_map_panel(tree_sf_plot, "richness_10km", COLOR_CONFIG$tree_richness,  scaffold)
+p_tree_R <- make_map_panel(tree_sf_plot, "qD", COLOR_CONFIG$tree_richness,  scaffold)
 p_tree_M <- make_map_panel(tree_sf_plot, "MSA_new_10km",  COLOR_CONFIG$tree_abundance, scaffold)
 p1_tree  <- sar_partial_plot(sar_tree_R[[3]], "EH_10km_t", "10km", "tree",
                              quadratic = TRUE, line_color = COLOR_CONFIG$partial_richness_col,

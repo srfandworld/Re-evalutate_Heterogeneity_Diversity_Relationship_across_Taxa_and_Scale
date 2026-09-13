@@ -20,7 +20,7 @@ scales_tree   <- c("1km", "5km", "10km", "20km", "50km")
 scales_bird   <- c("400m", "1km", "5km", "10km", "20km")
 scales_mammal <- c("1km", "5km", "10km", "20km", "50km")
 
-for (s in scales_tree)   assign(glue("FIA_table_{s}"),    read.csv(glue("data_clean/FIA_table_{s}.csv")))
+for (s in scales_tree)   assign(glue("FIA_table_{s}"),    read.csv(glue("data_clean/FIA_table_{s}_iNEXT.csv")))
 for (s in scales_bird)   assign(glue("BBS_table_{s}"),    read.csv(glue("data_clean/BBS_table_{s}.csv")))
 for (s in scales_mammal) assign(glue("mammal_table_{s}"), read.csv(glue("data_clean/mammal_table_{s}.csv")))
 
@@ -77,7 +77,7 @@ sar_modeling_tree <- function(scale, y, table_env = parent.frame()) {
   
   form <- if (y == "richness") {
     as.formula(glue(
-      "log(richness_{scale}/effort_{scale}) ~ EH_{scale}_t + I(EH_{scale}_t^2) + ",
+      "log(qD) ~ EH_{scale}_t + I(EH_{scale}_t^2) + ",
       "MAT_{scale}_t + MAP_{scale}_t + soilph_{scale}_t + soilcec_{scale}_t + elev_mean_{scale}_t"))
   } else {
     as.formula(glue(
@@ -121,10 +121,10 @@ sar_modeling_mammal <- function(scale, y, centroids_sf = centroids_sf_mammal, k 
 # =============================================================================
 
 # ---- Trees ----
-sar_tree_richness <- setNames(lapply(scales_tree, sar_modeling_tree, y = "richness"),  scales_tree)
+sar_tree_richness <- setNames(lapply(scales_tree, sar_modeling_tree, y = "qD"),  scales_tree)
 sar_tree_MSA      <- setNames(lapply(scales_tree, sar_modeling_tree, y = "log(MSA)"),  scales_tree)
-write_rds(sar_tree_richness, "D:/BiodiversityEmbedding/data/sar_tree_richness.rds")
-write_rds(sar_tree_MSA,      "D:/BiodiversityEmbedding/data/sar_tree_MSA.rds")
+write_rds(sar_tree_richness, "D:/BiodiversityEmbedding/data/sar_tree_richness_iNEXT.rds")
+write_rds(sar_tree_MSA,      "D:/BiodiversityEmbedding/data/sar_tree_MSA_iNEXT.rds")
 
 # ---- Birds ----
 sar_bird_richness <- setNames(lapply(scales_bird, sar_modeling_bird, y = "richness"),  scales_bird)
