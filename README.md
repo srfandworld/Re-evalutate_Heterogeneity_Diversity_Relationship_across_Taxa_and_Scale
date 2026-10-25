@@ -25,7 +25,9 @@ These results establish AHTO as a general organizing principle whose expression 
 
 Environmental heterogeneity (EH) metrics and the environmental covariates were derived in Google Earth Engine. The scripts are provided in [`/gee`](./gee) and can also be loaded directly into the Earth Engine Code Editor:
 
-<https://code.earthengine.google.com/?accept_repo=users/surongfei27/EmbeddingPrediction>
+<https://code.earthengine.google.com/387a2cc5791ecf668fc1491c95d33874?accept_repo=users%2Fsurongfei27%2FEmbeddingPrediction>
+<https://code.earthengine.google.com/b34e86261ff469fb9acfe88edeb9196b?accept_repo=users%2Fsurongfei27%2FEmbeddingPrediction>
+<https://code.earthengine.google.com/965f415a5653f2d856c37225c21b9ac9?accept_repo=users%2Fsurongfei27%2FEmbeddingPrediction>
 
 > **Note:** Opening the link above requires a Google Earth Engine account. Clicking it adds the read-only repository to your Code Editor under the *Reader* section.
 
