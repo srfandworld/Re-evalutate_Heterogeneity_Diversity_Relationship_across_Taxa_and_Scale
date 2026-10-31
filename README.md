@@ -33,7 +33,7 @@ Environmental heterogeneity (EH) metrics and the environmental covariates were d
 
 ### Analysis (R)
 
-/Code
+/code
 
 ## Data Sources
 
