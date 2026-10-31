@@ -1,19 +1,19 @@
 # =============================================================================
-# 02_Figure2.R  (source: Code/Figure2/02_Figure2_visualization.R; paths only)
+# 02_Figure2.R  (source: EmbeddingBio/analysis/Figure2.R, 2026-10-30 version;
+#                paths only changed)
 #
-# Inputs   : data/clean/models/sar_*.rds (01_fit_HDR_models.R), per-scale tables,
-#            plot/route/array geometries (see PATHS below)
+# Inputs   : data/clean/models/sar_*.rds and data/clean/model_data/*_model_<s>.csv
+#            (01_fit_HDR_models.R); plot/route/array geometries (see PATHS)
 # Outputs  : output/figures/Figure2A_maps_3taxa.png
 #            output/figures/Figure2B_partial_scaling_3taxa.png
 #            (taxon icons were added afterwards by hand)
-#
-# TODO(reviewer C4): turning points are back-transformed (section 4 helpers)
-#   with the mean/SD of the plots in each model, but tree covariates were
-#   standardised over ALL plots in 03_community_metrics/01. Use the same
-#   parameters as the fitting data.
-# TODO(reviewer): Fig. 2o shows a mammal MSA turning point (0.70 at 10 km)
-#   outside the observed EH range (max 0.53), and turning points are drawn
-#   where the quadratic term is not significant. Decide how to display these.
+# Partial residuals use EH from each model's design matrix (model$X); turning
+# points are back-transformed with the exact center/sd used to standardize EH
+# (same as Table S2-S3), addressing reviewer C4.
+# NOTE: set LAYOUT_CONFIG$preview_mode = FALSE for the final render (preview
+#       mode thins the dense tree points on the maps).
+# TODO(reviewer): Fig. 2o shows turning points for scales where EH^2 is not
+#   significant (mammals); decide whether to plot only significant ones.
 # =============================================================================
 # =============================================================================
 # Figure 2 - Environmental heterogeneity effects on species richness and
@@ -63,16 +63,15 @@ PATHS <- list(
                 sar_M = p_model("sar_mammal_MSA.rds"))
 )
 
-# Per-scale tables. Loaded into .GlobalEnv as <prefix>_table_<scale>
-# so helpers can resolve get(glue("..._{scale}")). load_scale_tables()
-# dispatches on extension (.csv or .rds).
-# NOTE(reorg): the original pointed bird/mammal at BBS_table_*.rds /
-# mammal_table_*.rds (saved 2026-04-23); the pipeline now writes the .csv
-# versions in 03_community_metrics. Check the two agree before final renders.
+# Per-scale MODEL data written by 01_fit_HDR_models.R (the exact rows each SAR
+# model was fitted on). Loaded into .GlobalEnv as <prefix>_table_<scale> so
+# helpers can resolve get(glue("..._{scale}")); used for the turning-point
+# back-transform in inflection_boot().
+MODEL_DATA_DIR <- p_clean("model_data")
 SCALE_TABLE_PATHS <- list(
-  tree   = setNames(p_clean(paste0("FIA_table_",    SCALES_TREE,   "_iNEXT.csv")), SCALES_TREE),
-  bird   = setNames(p_clean(paste0("BBS_table_",    SCALES_BIRD,   ".csv")),       SCALES_BIRD),
-  mammal = setNames(p_clean(paste0("mammal_table_", SCALES_MAMMAL, ".csv")),       SCALES_MAMMAL)
+  tree   = setNames(file.path(MODEL_DATA_DIR, paste0("FIA_model_",    SCALES_TREE,   ".csv")), SCALES_TREE),
+  bird   = setNames(file.path(MODEL_DATA_DIR, paste0("BBS_model_",    SCALES_BIRD,   ".csv")), SCALES_BIRD),
+  mammal = setNames(file.path(MODEL_DATA_DIR, paste0("mammal_model_", SCALES_MAMMAL, ".csv")), SCALES_MAMMAL)
 )
 
 ## 3. Configuration ----------------------------------------------------------
@@ -341,23 +340,10 @@ sar_partial_plot <- function(model, var, scale, taxa,
                              x_label = NULL, y_label = "Partial residual") {
   th <- THEME_CONFIG
   
-  if (taxa == "bird") {
-    data <- get(glue("BBS_table_{scale}")) %>% tidyr::drop_na()
-    R2   <- cor(model$Y, model$fit$fitted.values)^2
-  } else if (taxa == "mammal") {
-    data <- get(glue("mammal_table_{scale}")) %>% tidyr::drop_na() %>%
-      dplyr::group_by(Camera_Trap_Array) %>%
-      dplyr::summarise(dplyr::across(c(richness_Estimator, abundance, MSA, contains("_t")),
-                                     ~ mean(.x, na.rm = TRUE)), .groups = "drop")
-    R2 <- cor(model$Y, model$fit$fitted.values)^2
-  } else {
-    # Use the fitted lm's own model frame so the predictor rows align with
-    # residuals(model). The iNEXT richness model is fit on log(qD), which
-    # drops rows where qD is NA, so a re-loaded FIA_table_{scale} %>% drop_na()
-    # no longer reproduces the model's row count (129065 vs 67276).
-    data <- model.frame(model)
-    R2   <- unname(performance::r2(model)[[2]])
-  }
+  # predictor values straight from the SAR design matrix: rows match
+  # residuals(model) exactly, for all three taxa
+  data <- as.data.frame(model$X, check.names = FALSE)
+  R2   <- cor(model$Y, model$fit$fitted.values)^2
   sar_coef_table <- get_coef_table(model)
   
   coefs   <- coef(model); resids <- residuals(model)
@@ -433,27 +419,18 @@ sar_partial_plot <- function(model, var, scale, taxa,
 # 4g. Inflection bootstrap.
 inflection_boot <- function(model, taxa, nsim = 500, seed = 123) {
   set.seed(seed)
-  if (taxa == "bird") {
-    scale  <- stringr::str_extract(colnames(model$X)[2], "\\d+(km|m)")
-    EH_var <- glue("EH_{scale}")
-    data   <- get(glue("BBS_table_{scale}")) %>% tidyr::drop_na()
-  } else if (taxa == "mammal") {
-    scale  <- stringr::str_extract(colnames(model$X)[2], "\\d+(km|m)")
-    EH_var <- glue("EH_{scale}")
-    data   <- get(glue("mammal_table_{scale}")) %>% tidyr::drop_na() %>%
-      dplyr::group_by(Camera_Trap_Array) %>%
-      dplyr::summarise(dplyr::across(where(is.numeric),
-                                     ~ mean(.x, na.rm = TRUE)), .groups = "drop")
-  } else {
-    scale  <- stringr::str_extract(colnames(model$model)[2], "\\d+(km|m)")
-    EH_var <- glue("EH_{scale}")
-    data   <- get(glue("FIA_table_{scale}")) %>% tidyr::drop_na()
-  }
+  prefix <- c(tree = "FIA", bird = "BBS", mammal = "mammal")[[taxa]]
+  scale  <- stringr::str_extract(colnames(model$X)[2], "\\d+(km|m)")
+  EH_var <- glue("EH_{scale}")
+  data   <- get(glue("{prefix}_table_{scale}"))          # model data (01_3taxa_modeling.R)
   tab <- get_coef_table(model)
   m   <- tab[, "Estimate"]; s <- tab[, "Std. Error"]
   z_sims <- replicate(nsim, { b1 <- rnorm(1, m[2], s[2]); b2 <- rnorm(1, m[3], s[3]); -b1/(2*b2) })
   z_obs  <- -m[2] / (2 * m[3])
-  mu  <- mean(data[[EH_var]], na.rm = TRUE); sdv <- sd(data[[EH_var]], na.rm = TRUE)
+  # back-transform with the center/sd actually used to standardize EH:
+  # EH = mu + sdv * EH_t (exact; same as tableS2_S3_HDR.R)
+  bt  <- unname(coef(lm(data[[EH_var]] ~ data[[glue("{EH_var}_t")]])))
+  mu  <- bt[1]; sdv <- bt[2]
   data.frame(z = mu + sdv*z_obs, se_z = mu + sdv*sd(z_sims),
              lwr_95 = mu + sdv*quantile(z_sims, 0.025),
              upr_95 = mu + sdv*quantile(z_sims, 0.975))

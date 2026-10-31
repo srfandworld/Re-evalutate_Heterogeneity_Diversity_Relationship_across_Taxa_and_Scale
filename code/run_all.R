@@ -16,7 +16,7 @@ RUN <- list(
   traits_niche = FALSE,  # TRY/BIEN/TNRS online; KDE niche breadth (hours)
   hdr_models   = TRUE,   # Fig. 2, Tables S2-S4, Figs. S9-S12
   species      = TRUE,   # Fig. 3, Table S5, Figs. S13-S15
-  supplement   = TRUE    # Figs. S6-S8 (S1, S5, S16-S19 are stubs)
+  supplement   = TRUE    # Figs. S1, S5-S8, S16-S19
 )
 
 run <- function(...) {
@@ -53,18 +53,26 @@ if (RUN$hdr_models) {
   run("05_HDR_models", "01_fit_HDR_models.R")
   run("05_HDR_models", "02_Figure2.R")
   run("05_HDR_models", "03_FigS9-S11_partial_residuals.R")
-  run("05_HDR_models", "04_TableS4_FigS12_relative_importance.R")
-  # 05_TablesS2-S3_model_summaries.R is a stub
+  run("05_HDR_models", "04_TableS4_LMG.R")             # Fig. S12 donuts: 04b (TODO)
+  run("05_HDR_models", "05_TablesS2-S3_model_summaries.R")   # refits linear SAR once (cached)
 }
 if (RUN$species) {
   run("06_species_trait_responses", "01_species_EH_trait_models.R")
   run("06_species_trait_responses", "02_Figure3_forestplot.R")
-  run("06_species_trait_responses", "03_FigS13-S15_species_level_scales.R")
+  run("06_species_trait_responses", "03_FigS13_species_level_scales.R")
+  run("06_species_trait_responses", "04_FigS14_forestplot_multiscale.R")   # needs *_data_<scale>.csv for all scales
+  run("06_species_trait_responses", "05_FigS15_forestplot_treeimputation.R")   # needs tree_data_<scale>(_imputed).csv
 }
 if (RUN$supplement) {
+  run("07_supplementary_figures", "FigS01_phylogenies.R")
+  run("07_supplementary_figures", "FigS05_niche_env_layers.R")
   run("07_supplementary_figures", "FigS06_EH_characterization.R")
   run("07_supplementary_figures", "FigS07_EH_vs_conventional_metrics.R")
   run("07_supplementary_figures", "FigS08_EH_across_scales.R")
+  run("07_supplementary_figures", "FigS16_total_community_abundance.R")   # SAR, cached
+  run("07_supplementary_figures", "FigS17_tree_alternative_EH.R")    # SAR, slow
+  run("07_supplementary_figures", "FigS18_bird_alternative_EH.R")
+  run("07_supplementary_figures", "FigS19_mammal_alternative_EH.R")
 }
 
 sessionInfo()

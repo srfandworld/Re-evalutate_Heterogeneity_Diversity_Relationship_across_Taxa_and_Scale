@@ -43,55 +43,55 @@ conversion_rules_corrected <- tribble(
   ~TraitName, ~OrigUnitStr, ~commonUnit, ~scaleVal,
   
   # ---- SLA (specific leaf area) - petiole excluded; target m2/kg ----
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "cm2 / g",     "m2/kg", 0.1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "cm2 g-1",     "m2/kg", 0.1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "cm2/g",       "m2/kg", 0.1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "cm2\u00b7g-1", "m2/kg", 0.1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "g m-2",       "m2/kg", -1000,  # LMA: invert
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "g.m2",        "m2/kg", -1000,  # LMA: invert; verify unit notation
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "g/m2",        "m2/kg", -1000,  # LMA: invert
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "m2 kg-1",     "m2/kg", 1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "m2/g",        "m2/kg", 1000,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "m2/kg",       "m2/kg", 1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "m^2/kg",      "m2/kg", 1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "mg/cm2",      "m2/kg", -100,   # LMA: invert
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "mm2 / mg",    "m2/kg", 1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "mm2 mg-1",    "m2/kg", 1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "mm2*mg-1",    "m2/kg", 1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "mm2/g",       "m2/kg", 0.001,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "mm2/mg",      "m2/kg", 1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "mm2\u00b7mg-1", "m2/kg", 1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "mm^2/mg",     "m2/kg", 1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "m\u00b2 kg-1", "m2/kg", 1,
-
-# ---- SLA - petiole undefined; target m2/kg ----
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "(cm2/g)/100", "m2/kg", 10,      # Verify original unit interpretation
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "(g m-2)",     "m2/kg", -1000,   # LMA: invert
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "(g/cm2)",     "m2/kg", -0.1,    # LMA: invert
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "SLA cm2/g",   "m2/kg", 0.1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "cm2 g-1",     "m2/kg", 0.1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "cm2 mg-1",    "m2/kg", 100,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "cm2.g-1",     "m2/kg", 0.1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "cm2/ g",      "m2/kg", 0.1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "cm2/g",       "m2/kg", 0.1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "cm2\u00b7g-1", "m2/kg", 0.1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "cm^2/g",      "m2/kg", 0.1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "g m-2",       "m2/kg", -1000,   # LMA: invert
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "g/cm2",       "m2/kg", -0.1,    # LMA: invert
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "g/m2",        "m2/kg", -1000,   # LMA: invert
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "gm-2",        "m2/kg", -1000,   # LMA: invert
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "m2 / kg",     "m2/kg", 1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "m2 kg-1",     "m2/kg", 1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "m2/g",        "m2/kg", 1000,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "m2/kg",       "m2/kg", 1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "mg/cm2",      "m2/kg", -100,    # LMA: invert
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "mm2 / mg",    "m2/kg", 1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "mm2 mg-1",    "m2/kg", 1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "mm2/g",       "m2/kg", 0.001,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "mm2/mg",      "m2/kg", 1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "mm2mg-1",     "m2/kg", 1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "mm^2/mg",     "m2/kg", 1,
-"Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "mm\u00b2/mg", "m2/kg", 1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "cm2 / g",     "m2/kg", 0.1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "cm2 g-1",     "m2/kg", 0.1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "cm2/g",       "m2/kg", 0.1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "cm2\u00b7g-1", "m2/kg", 0.1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "g m-2",       "m2/kg", -1000,  # LMA: invert
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "g.m2",        "m2/kg", -1000,  # LMA: invert; verify unit notation
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "g/m2",        "m2/kg", -1000,  # LMA: invert
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "m2 kg-1",     "m2/kg", 1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "m2/g",        "m2/kg", 1000,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "m2/kg",       "m2/kg", 1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "m^2/kg",      "m2/kg", 1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "mg/cm2",      "m2/kg", -100,   # LMA: invert
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "mm2 / mg",    "m2/kg", 1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "mm2 mg-1",    "m2/kg", 1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "mm2*mg-1",    "m2/kg", 1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "mm2/g",       "m2/kg", 0.001,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "mm2/mg",      "m2/kg", 1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "mm2\u00b7mg-1", "m2/kg", 1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "mm^2/mg",     "m2/kg", 1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): petiole excluded", "m\u00b2 kg-1", "m2/kg", 1,
+  
+  # ---- SLA - petiole undefined; target m2/kg ----
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "(cm2/g)/100", "m2/kg", 10,      # Verify original unit interpretation
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "(g m-2)",     "m2/kg", -1000,   # LMA: invert
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "(g/cm2)",     "m2/kg", -0.1,    # LMA: invert
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "SLA cm2/g",   "m2/kg", 0.1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "cm2 g-1",     "m2/kg", 0.1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "cm2 mg-1",    "m2/kg", 100,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "cm2.g-1",     "m2/kg", 0.1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "cm2/ g",      "m2/kg", 0.1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "cm2/g",       "m2/kg", 0.1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "cm2\u00b7g-1", "m2/kg", 0.1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "cm^2/g",      "m2/kg", 0.1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "g m-2",       "m2/kg", -1000,   # LMA: invert
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "g/cm2",       "m2/kg", -0.1,    # LMA: invert
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "g/m2",        "m2/kg", -1000,   # LMA: invert
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "gm-2",        "m2/kg", -1000,   # LMA: invert
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "m2 / kg",     "m2/kg", 1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "m2 kg-1",     "m2/kg", 1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "m2/g",        "m2/kg", 1000,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "m2/kg",       "m2/kg", 1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "mg/cm2",      "m2/kg", -100,    # LMA: invert
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "mm2 / mg",    "m2/kg", 1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "mm2 mg-1",    "m2/kg", 1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "mm2/g",       "m2/kg", 0.001,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "mm2/mg",      "m2/kg", 1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "mm2mg-1",     "m2/kg", 1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "mm^2/mg",     "m2/kg", 1,
+  "Leaf area per leaf dry mass (specific leaf area, SLA or 1/LMA): undefined if petiole is in- or excluded", "mm\u00b2/mg", "m2/kg", 1,
   
   # ---- Leaf nitrogen; target mg/g ----
   "Leaf nitrogen (N) content per leaf dry mass", "%",                 "mg/g", 10,

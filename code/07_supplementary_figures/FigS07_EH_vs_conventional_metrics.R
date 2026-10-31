@@ -10,8 +10,6 @@
 # Inputs   : data/raw/gee_exports/MeanCosineDist_5km_2020.shp
 #            HDR_EXT_DIR/environmental_data/{soilgrids, Elevation_US_5070.tif,
 #              tcc_US_5070.tif, NLCD_US_5070.tif, CHM_SD_CONUS_5070.tif}
-# TODO(reviewer C3): no source code for the EH validation analysis; the
-#   temperature/precipitation SD layers are not read here - locate them.
 # =============================================================================
 
 source(here::here("code", "00_config.R"))
